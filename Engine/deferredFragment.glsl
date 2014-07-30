@@ -7,8 +7,8 @@ uniform sampler2D diffuseTex;
 uniform sampler2D specularTex;
 uniform sampler2D normalTex;
 
-uniform mat4 v;
-uniform vec3 lightPosition_worldspace;
+// uniform mat4 v;
+uniform vec3 lightPosition_cameraspace;
 uniform vec3 lightColor;
 uniform float lightPower;
 
@@ -17,7 +17,7 @@ layout(location = 0) out vec3 color;
 void main()
 {
 	vec3 position_cameraspace = texture(position_cameraspaceTex, uv).xyz;
-	vec3 normal = texture(normalTex, uv).xzy;
+	vec3 normal = texture(normalTex, uv).xyz;
 
 	vec3 materialDiffuseColor = texture(diffuseTex, uv).rgb;
 	vec3 ambientColor = materialDiffuseColor * lightColor * 0.2;
@@ -25,9 +25,8 @@ void main()
 	vec3 materialSpecularColor = texture(specularTex, uv).rgb;
 
 	vec3 eyeDirection_cameraspace = vec3(0, 0, 0) - position_cameraspace;
-	vec3 lightPosition_cameraspace = (v * vec4(lightPosition_worldspace, 1)).xyz;
-	vec3 lightDirection_cameraspace = lightPosition_cameraspace + eyeDirection_cameraspace;
-	float lightDistance = length(lightPosition_cameraspace - position_cameraspace);
+	vec3 lightDirection_cameraspace = lightPosition_cameraspace - position_cameraspace;
+	float lightDistance = length(lightDirection_cameraspace);
 
 	vec3 n = normalize(normal);
 	vec3 l = normalize(lightDirection_cameraspace);
@@ -42,7 +41,7 @@ void main()
 
 	float cosAlpha = clamp(dot(e, r), 0, 1);
 	
-	vec3 specularColor = vec3(0); // vec3 specularColor = materialSpecularColor * lightColor * lightPower * pow(cosAlpha, 20) / (lightDistance * lightDistance);
+	vec3 specularColor = materialSpecularColor * lightColor * lightPower * pow(cosAlpha, 20) / (lightDistance * lightDistance);
 
 	color = diffuseColor + ambientColor + specularColor;
 }

@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <iostream>
 
 #include "globals.h"
 
@@ -50,8 +51,7 @@ void EventManager::mainLoop()
 	GLuint diffuseTexId = glGetUniformLocation(deferredProgramId, "diffuseTex");
 	GLuint specularTexId = glGetUniformLocation(deferredProgramId, "specularTex");
 	GLuint normalTexId = glGetUniformLocation(deferredProgramId, "normalTex");
-	GLuint vId = glGetUniformLocation(deferredProgramId, "v");
-	GLuint lightPositionId = glGetUniformLocation(deferredProgramId, "lightPosition_worldspace");
+	GLuint lightPositionId = glGetUniformLocation(deferredProgramId, "lightPosition_cameraspace");
 	GLuint lightColorId = glGetUniformLocation(deferredProgramId, "lightColor");
 	GLuint lightPowerId = glGetUniformLocation(deferredProgramId, "lightPower");
 
@@ -187,8 +187,8 @@ void EventManager::mainLoop()
 		glActiveTexture(GL_TEXTURE3);
 		glBindTexture(GL_TEXTURE_2D, normalOutput);
 		glUniform1i(normalTexId, 3);
-		glUniformMatrix4fv(vId, 1, GL_FALSE, &viewMatrix[0][0]);
-		glUniform3f(lightPositionId, 0, 7, -2);
+		glm::vec4 lightPosition_cameraspace = viewMatrix * glm::vec4(0, 7, -2, 1);
+		glUniform3f(lightPositionId, lightPosition_cameraspace.x, lightPosition_cameraspace.y, lightPosition_cameraspace.z);
 		glUniform3f(lightColorId, 1, 1, 1);
 		glUniform1f(lightPowerId, 15);
 

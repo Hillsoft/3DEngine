@@ -12,7 +12,7 @@ uniform sampler2D textureSampler;
 
 void main()
 {
-	position_cameraspace = -in_position_cameraspace;
+	position_cameraspace = in_position_cameraspace;
 	color = vec3(1); // color = texture2D(textureSampler, uv).rgb;
 	specular = vec3(0.5, 0.5, 0.5);
 	normal = normal_cameraspace;
