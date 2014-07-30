@@ -1,0 +1,149 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="Header Files\EngineCore">
+      <UniqueIdentifier>{a3d2b07b-0b65-4b71-9798-2164d5836933}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\EngineCore">
+      <UniqueIdentifier>{34d61edc-732e-4e82-a5e8-14e978d9603a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\GameTemplates">
+      <UniqueIdentifier>{02630909-9ff2-40d8-afd1-bfe5f8f46afd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\GameTemplates">
+      <UniqueIdentifier>{ab6476e8-0b6f-4217-bcdf-e0ac9de37b70}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="main.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="loadUtilities.cpp">
+      <Filter>Source Files\EngineCore</Filter>
+    </ClCompile>
+    <ClCompile Include="performanceMonitor.cpp">
+      <Filter>Source Files\EngineCore</Filter>
+    </ClCompile>
+    <ClCompile Include="vboindexer.cpp">
+      <Filter>Source Files\EngineCore</Filter>
+    </ClCompile>
+    <ClCompile Include="text2D.cpp">
+      <Filter>Source Files\EngineCore</Filter>
+    </ClCompile>
+    <ClCompile Include="globals.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="gameObject.cpp">
+      <Filter>Source Files\GameTemplates</Filter>
+    </ClCompile>
+    <ClCompile Include="actor.cpp">
+      <Filter>Source Files\GameTemplates</Filter>
+    </ClCompile>
+    <ClCompile Include="eventManager.cpp">
+      <Filter>Source Files\EngineCore</Filter>
+    </ClCompile>
+    <ClCompile Include="meshComponent.cpp">
+      <Filter>Source Files\GameTemplates</Filter>
+    </ClCompile>
+    <ClCompile Include="component.cpp">
+      <Filter>Source Files\GameTemplates</Filter>
+    </ClCompile>
+    <ClCompile Include="simpleCamera.cpp">
+      <Filter>Source Files\GameTemplates</Filter>
+    </ClCompile>
+    <ClCompile Include="postProcess.cpp">
+      <Filter>Source Files\EngineCore</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="loadUtilities.h">
+      <Filter>Header Files\EngineCore</Filter>
+    </ClInclude>
+    <ClInclude Include="performanceMonitor.h">
+      <Filter>Header Files\EngineCore</Filter>
+    </ClInclude>
+    <ClInclude Include="text2D.h">
+      <Filter>Header Files\EngineCore</Filter>
+    </ClInclude>
+    <ClInclude Include="vboindexer.h">
+      <Filter>Header Files\EngineCore</Filter>
+    </ClInclude>
+    <ClInclude Include="globals.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="eventManager.h">
+      <Filter>Header Files\EngineCore</Filter>
+    </ClInclude>
+    <ClInclude Include="gameObject.h">
+      <Filter>Header Files\GameTemplates</Filter>
+    </ClInclude>
+    <ClInclude Include="actor.h">
+      <Filter>Header Files\GameTemplates</Filter>
+    </ClInclude>
+    <ClInclude Include="meshComponent.h">
+      <Filter>Header Files\GameTemplates</Filter>
+    </ClInclude>
+    <ClInclude Include="component.h">
+      <Filter>Header Files\GameTemplates</Filter>
+    </ClInclude>
+    <ClInclude Include="camera.h">
+      <Filter>Header Files\GameTemplates</Filter>
+    </ClInclude>
+    <ClInclude Include="simpleCamera.h">
+      <Filter>Header Files\GameTemplates</Filter>
+    </ClInclude>
+    <ClInclude Include="postProcess.h">
+      <Filter>Header Files\EngineCore</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="vertex.glsl">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="fragment.glsl">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="textVertex.glsl">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="textFragment.glsl">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="ppFragment.glsl">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="engine.ini">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="keyBindings.ini">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="blurFragmentVertical.glsl">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="blurFragmentHorizontal.glsl">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="quadVertex.glsl">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="glowmapFragment.glsl">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="deferredFragment.glsl">
+      <Filter>Resource Files</Filter>
+    </None>
+  </ItemGroup>
+</Project>
