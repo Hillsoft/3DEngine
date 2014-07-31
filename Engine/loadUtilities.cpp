@@ -8,6 +8,7 @@
 
 #include "loadUtilities.h"
 
+// Constants used to load DDS textures
 #define FOURCC_DXT1 0x31545844
 #define FOURCC_DXT3 0x33545844
 #define FOURCC_DXT5 0x35545844
@@ -17,6 +18,7 @@ GLuint loadShaders(const char* vertexFilePath, const char* fragmentFilePath)
 	GLuint vertexShaderId = glCreateShader(GL_VERTEX_SHADER);
 	GLuint fragmentShaderId = glCreateShader(GL_FRAGMENT_SHADER);
 
+	// Read the code from the GLSL files
 	std::string vertexShaderCode;
 	std::ifstream vertexShaderStream(vertexFilePath, std::ios::in);
 	if (vertexShaderStream.is_open())
@@ -95,6 +97,7 @@ GLuint loadBMP(const char* filePath)
 
 	unsigned char* data;
 
+	// Read the bitmap headers
 	FILE* file = fopen(filePath, "rb");
 	if (!file)
 	{
@@ -114,6 +117,7 @@ GLuint loadBMP(const char* filePath)
 		return 0;
 	}
 
+	// Load metadata
 	dataPos = *(int*)&(header[0x0A]);
 	imageSize = *(int*)&(header[0x22]);
 	width = *(int*)&(header[0x12]);
@@ -122,12 +126,14 @@ GLuint loadBMP(const char* filePath)
 	if (imageSize == 0) imageSize = width * height * 3;
 	if (dataPos == 0) dataPos = 54;
 
+	// Load data from the file
 	data = new unsigned char[imageSize];
 
 	fread(data, 1, imageSize, file);
 
 	fclose(file);
 
+	// Convert raw image data into openGL texture
 	GLuint textureId;
 	glGenTextures(1, &textureId);
 
@@ -151,6 +157,7 @@ GLuint loadDDS(const char* filePath)
 	if (fp == NULL)
 		return 0;
 
+	// Confirm the file is a DDS file
 	char filecode[4];
 	fread(filecode, 1, 4, fp);
 	if (strncmp(filecode, "DDS ", 4) != 0)
@@ -159,6 +166,7 @@ GLuint loadDDS(const char* filePath)
 		return 0;
 	}
 
+	// Read the files header info
 	fread(&header, 124, 1, fp);
 
 	unsigned int height = *(unsigned int*)&(header[8]);
@@ -174,6 +182,7 @@ GLuint loadDDS(const char* filePath)
 	fread(buffer, 1, bufSize, fp);
 	fclose(fp);
 
+	// Check DDS version
 	unsigned int components = (fourCC == FOURCC_DXT1) ? 3 : 4;
 	unsigned int format;
 	switch (fourCC)
@@ -192,6 +201,7 @@ GLuint loadDDS(const char* filePath)
 		return 0;
 	}
 
+	// Pass data to openGL to generate texture
 	GLuint textureId;
 	glGenTextures(1, &textureId);
 
@@ -220,6 +230,7 @@ bool loadOBJ(
 	std::vector<glm::vec2>& out_uvs,
 	std::vector<glm::vec3>& out_normals)
 {
+	// Raw OBJ data
 	std::vector<unsigned int> vertexIndices, uvIndices, normalIndices;
 	std::vector<glm::vec3> temp_vertices;
 	std::vector<glm::vec2> temp_uvs;
@@ -236,30 +247,35 @@ bool loadOBJ(
 	{
 		char lineHeader[128];
 
+		// Get the OBJ command
 		int res = fscanf(file, "%s", lineHeader);
 		if (res == EOF)
 			break;
 
 		if (strcmp(lineHeader, "v") == 0)
 		{
+			// Add a vertex
 			glm::vec3 vertex;
 			fscanf(file, "%f %f %f\n", &vertex.x, &vertex.y, &vertex.z);
 			temp_vertices.push_back(vertex);
 		}
 		else if (strcmp(lineHeader, "vt") == 0)
 		{
+			// Add a uv
 			glm::vec2 uv;
 			fscanf(file, "%f %f\n", &uv.x, &uv.y);
 			temp_uvs.push_back(uv);
 		}
 		else if (strcmp(lineHeader, "vn") == 0)
 		{
+			// Add a normal
 			glm::vec3 normal;
 			fscanf(file, "%f %f %f\n", &normal.x, &normal.y, &normal.z);
 			temp_normals.push_back(normal);
 		}
 		else if (strcmp(lineHeader, "f") == 0)
 		{
+			// Add a face, uses data from previous commands
 			std::string vertex1, vertex2, vertex3;
 			unsigned int vertexIndex[3], uvIndex[3], normalIndex[3];
 			int matches = fscanf(file, "%d/%d/%d %d/%d/%d %d/%d/%d", &vertexIndex[0], &uvIndex[0], &normalIndex[0], &vertexIndex[1], &uvIndex[1], &normalIndex[1], &vertexIndex[2], &uvIndex[2], &normalIndex[2]);
@@ -281,6 +297,7 @@ bool loadOBJ(
 		}
 	}
 
+	// Puts necessary data into output arrays
 	for (unsigned int i = 0; i < vertexIndices.size(); ++i)
 	{
 		unsigned int vertexIndex = vertexIndices[i];

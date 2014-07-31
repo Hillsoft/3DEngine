@@ -7,6 +7,7 @@ SimpleCamera::SimpleCamera()
 {
 	ListenerFunc* lf;
 
+	// Load key bindings
 	if (!globalEventManager.bindingExists("forwards"))
 		globalEventManager.addBinding("forwards", GLFW_KEY_W);
 	lf = new ListenerFunc(forwards, this);
@@ -48,19 +49,25 @@ void SimpleCamera::tick(float deltaTime)
 {
 	Actor::tick(deltaTime);
 
+	// Get cursor position
 	double xpos, ypos;
 	glfwGetCursorPos(window, &xpos, &ypos);
 	glfwSetCursorPos(window, windowWidth / 2, windowHeight / 2);
 
+	// Rotate based on mouse movement
 	horizontalAngle += mouseSpeed * float(windowWidth / 2 - xpos);
 	verticalAngle += mouseSpeed * float(windowHeight / 2 - ypos);
 
+	// Calculate forwards vector
 	glm::vec3 direction(cos(verticalAngle) * sin(horizontalAngle), sin(verticalAngle), cos(verticalAngle) * cos(horizontalAngle));
 
+	// Calculate right vector
 	glm::vec3 right(sin(horizontalAngle - 3.14f / 2.0f), 0, cos(horizontalAngle - 3.14f / 2.0f));
 
+	// Calculate up vector
 	glm::vec3 up = glm::cross(right, direction);
 
+	// Move camera if keys are pressed
 	if (keys[0])
 		location += direction * deltaTime * speed;
 	if (keys[1])
@@ -74,6 +81,7 @@ void SimpleCamera::tick(float deltaTime)
 	if (keys[5])
 		location -= up * deltaTime * speed;
 
+	// Calculate projection and view matrices
 	projectionMatrix = glm::perspective(initialFOV, float(windowWidth) / float(windowHeight), 0.1f, 100.0f);
 	viewMatrix = glm::lookAt(location, location + direction, up);
 }
@@ -88,6 +96,7 @@ glm::mat4 SimpleCamera::getViewMatrix()
 	return viewMatrix;
 }
 
+// Key listeners
 void SimpleCamera::forwards(int action, Actor* handler)
 {
 	SimpleCamera* cam = static_cast<SimpleCamera*>(handler);

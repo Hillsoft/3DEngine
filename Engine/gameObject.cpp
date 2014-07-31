@@ -15,6 +15,5 @@ GameObject::~GameObject()
 
 void GameObject::tick(float deltaTime)
 {
-	
-	// do something
+	// do nothing
 }

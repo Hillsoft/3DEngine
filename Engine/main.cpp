@@ -18,6 +18,7 @@
 
 int main()
 {
+	// Loads engine settings before initialization
 	loadSettings();
 
 	if (!glfwInit())
@@ -31,6 +32,7 @@ int main()
 	glfwWindowHint(GLFW_VERSION_MINOR, 3);
 	// glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
+	// Create game window
 	window = glfwCreateWindow(windowWidth, windowHeight, "Test", fullscreen ? glfwGetPrimaryMonitor() : NULL, NULL);
 	if (window == NULL)
 	{
@@ -41,6 +43,7 @@ int main()
 
 	glfwMakeContextCurrent(window);
 
+	// Initialize GLEW
 	glewExperimental = true;
 	if (glewInit() != GLEW_OK)
 	{
@@ -55,6 +58,7 @@ int main()
 
 	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 
+	// Initialize test scene
 	initText2D("Data/Holstein.dds");
 	initPostProcess();
 

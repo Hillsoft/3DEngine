@@ -20,6 +20,7 @@ void drawPerformanceGraphs()
 
 	if (currentTime - lastTime > 1.0)
 	{
+		// Calculate average render time in ms
 		avgTime = float(1000 / double(nbFrames));
 		nbFrames = 0;
 		lastTime = currentTime;

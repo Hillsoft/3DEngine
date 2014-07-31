@@ -6,6 +6,7 @@
 
 #include "loadUtilities.h"
 
+// 2D text variables
 unsigned int text2DTextureId;
 unsigned int text2DVertexBufferId;
 unsigned int text2DUVBufferId;
@@ -14,6 +15,7 @@ unsigned int text2DUniformId;
 
 void initText2D(const char* texturePath)
 {
+	// Load vairables
 	text2DTextureId = loadDDS(texturePath);
 
 	glGenBuffers(1, &text2DVertexBufferId);
@@ -31,6 +33,7 @@ void printText2D(const char* text, int x, int y, int size)
 	std::vector<glm::vec2> vertices;
 	std::vector<glm::vec2> uvs;
 
+	// Get data for each character in it's own quad, using the UV coordinates of the letter in the texture
 	for (unsigned int i = 0; i < length; ++i)
 	{
 		glm::vec2 vertex_up_left = glm::vec2(x + i * size, y + size);
@@ -69,6 +72,7 @@ void printText2D(const char* text, int x, int y, int size)
 	glBindBuffer(GL_ARRAY_BUFFER, text2DUVBufferId);
 	glBufferData(GL_ARRAY_BUFFER, uvs.size() * sizeof(glm::vec2), &uvs[0], GL_STATIC_DRAW);
 
+	// Draw the previously generated data
 	glUseProgram(text2DShaderId);
 
 	glActiveTexture(GL_TEXTURE0);
@@ -97,6 +101,7 @@ void printText2D(const char* text, int x, int y, int size)
 
 void cleanupText2D()
 {
+	// Delete GL variables
 	glDeleteBuffers(1, &text2DVertexBufferId);
 	glDeleteBuffers(1, &text2DUVBufferId);
 

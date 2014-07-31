@@ -6,6 +6,7 @@
 #include "globals.h"
 #include "eventManager.h"
 
+// Default settings
 int windowWidth = 1280;
 int windowHeight = 720;
 int msaaRes = 4;
@@ -18,13 +19,16 @@ EventManager globalEventManager;
 
 void loadKeyBindings()
 {
+	// Read key bindings from file
 	std::ifstream bindingsFile("keyBindings.ini");
 
 	if (bindingsFile.is_open())
 	{
 		std::string line;
+		// Each line is a setting
 		while (std::getline(bindingsFile, line))
 		{
+			// Splits line into two strings, replacing the '=' with a null pointer
 			char* key = new char[line.length() + 1];
 			memcpy(key, line.c_str(), line.length() + 1);
 			char* value = NULL;
@@ -42,6 +46,7 @@ void loadKeyBindings()
 			if (value == NULL)
 				continue;
 
+			// Add the key binding
 			std::stringstream strVal;
 			strVal << value;
 			int keyVal;
@@ -57,6 +62,7 @@ void loadKeyBindings()
 
 void loadSettings()
 {
+	// Read settings from files
 	std::ifstream settingsFile("engine.ini");
 
 	if (settingsFile.is_open())
@@ -64,6 +70,7 @@ void loadSettings()
 		std::string line;
 		while (std::getline(settingsFile, line))
 		{
+			// Splits line into two strings, replacing the '=' with a null pointer
 			char* key = new char[line.length() + 1];
 			memcpy(key, line.c_str(), line.length() + 1);
 			char* value = NULL;
@@ -81,6 +88,7 @@ void loadSettings()
 			if (value == NULL)
 				continue;
 
+			// Checks if key is valid and assigns it to the relevant variable if so
 			if (!strcmp(key, "resX"))
 				windowWidth = atoi(value);
 			else if (!strcmp(key, "resY"))

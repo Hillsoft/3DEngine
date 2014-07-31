@@ -10,22 +10,28 @@
 using namespace glm;
 
 #ifndef M_PI
+// For some reason, this isn't defined in every compiler
 #define M_PI 3.14159265
 #endif
 
-class GenericClass;
+// Circular header includes are bad
 class EventManager;
 
+// Graphics settings
 extern int windowWidth;
 extern int windowHeight;
 extern bool fullscreen;
 extern int msaaRes;
+// A link to the GL window object
 extern GLFWwindow* window;
 
+// Deltatime, still used by performanceMonitor, but otherwise deprecated
 extern double deltaTime;
 
+// The global event manager, a very important object
 extern EventManager globalEventManager;
 
+// Loads game settings from engine.ini and keyBindings.ini
 void loadSettings();
 
 #endif

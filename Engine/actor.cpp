@@ -26,9 +26,7 @@ void Actor::tick(float deltaTime)
 {
 	GameObject::tick(deltaTime);
 
-	vec3 eulerRotation = vec3(0, 1 * deltaTime, 0);
-	// rotation = quat(eulerRotation) * rotation;
-
+	// Generate the object matrix
 	objectMatrix = mat4(1.0f);
 	objectMatrix = glm::scale(objectMatrix, scale);
 	objectMatrix = toMat4(rotation) * objectMatrix;

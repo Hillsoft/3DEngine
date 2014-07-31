@@ -8,6 +8,7 @@ public:
 
 	virtual ~GameObject();
 
+	// The tick function, allowing the actor to update itself each frame
 	virtual void tick(float deltaTime);
 };
 

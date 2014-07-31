@@ -15,11 +15,13 @@ public:
 
 	virtual void tick(float deltaTime);
 
+	// The actors position, should maybe be made private...
 	vec3 location;
 	quat rotation;
 	vec3 scale;
 	mat4 objectMatrix;
 
+	// The actors components
 	std::vector<Component*> components;
 };
 
