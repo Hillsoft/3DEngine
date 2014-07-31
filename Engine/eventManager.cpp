@@ -158,6 +158,8 @@ void EventManager::mainLoop()
 		glDrawBuffers(4, drawBuffers);
 
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		glEnable(GL_DEPTH_TEST);
+		glDisable(GL_BLEND);
 
 		glm::mat4 projectionMatrix = currentCamera->getProjectionMatrix();
 		glm::mat4 viewMatrix = currentCamera->getViewMatrix();
@@ -172,6 +174,9 @@ void EventManager::mainLoop()
 		glDrawBuffers(1, drawBuffersDeferred);
 
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		glDisable(GL_DEPTH_TEST);
+		glEnable(GL_BLEND);
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE);
 
 		glUseProgram(deferredProgramId);
 
@@ -187,20 +192,24 @@ void EventManager::mainLoop()
 		glActiveTexture(GL_TEXTURE3);
 		glBindTexture(GL_TEXTURE_2D, normalOutput);
 		glUniform1i(normalTexId, 3);
-		glm::vec4 lightPosition_cameraspace = viewMatrix * glm::vec4(0, 7, -2, 1);
-		glUniform3f(lightPositionId, lightPosition_cameraspace.x, lightPosition_cameraspace.y, lightPosition_cameraspace.z);
-		glUniform3f(lightColorId, 1, 1, 1);
-		glUniform1f(lightPowerId, 15);
 
 		glEnableVertexAttribArray(0);
 		glBindBuffer(GL_ARRAY_BUFFER, quad_vertexbuffer);
 		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, (void*)0);
 
-		glDrawArrays(GL_TRIANGLES, 0, sizeof(quad_vertexData) / sizeof(GLfloat));
+		for (int i = 0; i < lightNum; ++i)
+		{
+			glm::vec4 lightPosition_cameraspace = viewMatrix * vec4(lightList[i]->location, 1);
+			glUniform3f(lightPositionId, lightPosition_cameraspace.x, lightPosition_cameraspace.y, lightPosition_cameraspace.z);
+			glUniform3f(lightColorId, lightList[i]->getColor().r, lightList[i]->getColor().g, lightList[i]->getColor().b);
+			glUniform1f(lightPowerId, lightList[i]->getPower());
+
+			glDrawArrays(GL_TRIANGLES, 0, sizeof(quad_vertexData) / sizeof(GLfloat));
+		}
 
 		glDisableVertexAttribArray(0);
 
-		// bloom(glowMapTex, diffuseOutput, 128, 128);
+		// bloom(glowMapTex, colorOutput, 128, 128);
 
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 		glViewport(0, 0, windowWidth, windowHeight);
@@ -497,4 +506,16 @@ Binding* EventManager::getBindingWithName(const char* name)
 void EventManager::setCamera(Camera* newCamera)
 {
 	currentCamera = newCamera;
+}
+
+void EventManager::addLight(Light* newLight)
+{
+	Light** newLightList = new Light*[lightNum + 1];
+	memcpy(newLightList, lightList, sizeof(Light*)* lightNum);
+	newLightList[lightNum] = newLight;
+
+	delete[] lightList;
+	lightList = newLightList;
+
+	lightNum++;
 }

@@ -7,6 +7,7 @@
 
 #include "actor.h"
 #include "eventManager.h"
+#include "light.h"
 #include "loadUtilities.h"
 #include "meshComponent.h"
 #include "performanceMonitor.h"
@@ -82,6 +83,10 @@ int main()
 
 	SimpleCamera* cam = new SimpleCamera();
 	globalEventManager.setCamera(cam);
+
+	Light* redLight = new Light(vec3(0, 7, 0), quat(), vec3(1), vec3(1, 0, 0), 10);
+	Light* blueLight = new Light(vec3(0, 7, -4), quat(), vec3(1), vec3(0, 0, 1), 10);
+	Light* greenLight = new Light(vec3(0, 0, -2), quat(), vec3(1), vec3(0, 1, 0), 1);
 
 	globalEventManager.mainLoop();
 }

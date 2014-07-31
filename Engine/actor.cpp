@@ -15,6 +15,13 @@ Actor::Actor()
 	scale = vec3(1.0f);
 }
 
+Actor::Actor(vec3 location, quat rotation, vec3 scale)
+{
+	this->location = location;
+	this->rotation = rotation;
+	this->scale = scale;
+}
+
 void Actor::tick(float deltaTime)
 {
 	GameObject::tick(deltaTime);

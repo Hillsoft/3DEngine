@@ -2,6 +2,7 @@
 #define __EVENT_MANAGER_H__
 
 #include "globals.h"
+#include "light.h"
 
 class Actor;
 struct ListenerFunc
@@ -49,6 +50,8 @@ public:
 	void removeTickListener(GameObject* obj);
 	void removeDrawListener(Component* obj);
 
+	void addLight(Light* light);
+
 private:
 	static void staticKeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods);
 	void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods);
@@ -68,6 +71,9 @@ private:
 	int tickNum;
 	Component** drawList;
 	int drawNum;
+
+	Light** lightList;
+	int lightNum;
 };
 
 #endif

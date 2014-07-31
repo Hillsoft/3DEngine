@@ -11,6 +11,7 @@ class Actor : public GameObject
 {
 public:
 	Actor();
+	Actor(vec3 location, quat rotation, vec3 scale);
 
 	virtual void tick(float deltaTime);
 

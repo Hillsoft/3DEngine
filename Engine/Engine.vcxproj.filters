@@ -66,6 +66,9 @@
     <ClCompile Include="postProcess.cpp">
       <Filter>Source Files\EngineCore</Filter>
     </ClCompile>
+    <ClCompile Include="light.cpp">
+      <Filter>Source Files\GameTemplates</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="loadUtilities.h">
@@ -106,6 +109,9 @@
     </ClInclude>
     <ClInclude Include="postProcess.h">
       <Filter>Header Files\EngineCore</Filter>
+    </ClInclude>
+    <ClInclude Include="light.h">
+      <Filter>Header Files\GameTemplates</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

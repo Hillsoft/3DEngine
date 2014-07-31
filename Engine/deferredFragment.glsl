@@ -7,12 +7,11 @@ uniform sampler2D diffuseTex;
 uniform sampler2D specularTex;
 uniform sampler2D normalTex;
 
-// uniform mat4 v;
 uniform vec3 lightPosition_cameraspace;
 uniform vec3 lightColor;
 uniform float lightPower;
 
-layout(location = 0) out vec3 color;
+layout(location = 0) out vec4 color;
 
 void main()
 {
@@ -43,5 +42,5 @@ void main()
 	
 	vec3 specularColor = materialSpecularColor * lightColor * lightPower * pow(cosAlpha, 20) / (lightDistance * lightDistance);
 
-	color = diffuseColor + ambientColor + specularColor;
+	color = vec4(diffuseColor + ambientColor + specularColor, 1);
 }

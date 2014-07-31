@@ -77,6 +77,7 @@
     <ClCompile Include="eventManager.cpp" />
     <ClCompile Include="gameObject.cpp" />
     <ClCompile Include="globals.cpp" />
+    <ClCompile Include="light.cpp" />
     <ClCompile Include="loadUtilities.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="meshComponent.cpp" />
@@ -93,6 +94,7 @@
     <ClInclude Include="eventManager.h" />
     <ClInclude Include="gameObject.h" />
     <ClInclude Include="globals.h" />
+    <ClInclude Include="light.h" />
     <ClInclude Include="loadUtilities.h" />
     <ClInclude Include="meshComponent.h" />
     <ClInclude Include="performanceMonitor.h" />
