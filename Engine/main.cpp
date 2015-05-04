@@ -16,6 +16,8 @@
 #include "text2D.h"
 #include "vboindexer.h"
 
+using namespace HillEngine;
+
 int main()
 {
 	// Loads engine settings before initialization
@@ -88,9 +90,11 @@ int main()
 	SimpleCamera* cam = new SimpleCamera();
 	globalEventManager.setCamera(cam);
 
-	Light* redLight = new Light(vec3(0, 7, 0), quat(), vec3(1), vec3(1, 0, 0), 10);
-	Light* blueLight = new Light(vec3(0, 7, -4), quat(), vec3(1), vec3(0, 0, 1), 10);
-	Light* greenLight = new Light(vec3(0, 0, -2), quat(), vec3(1), vec3(0, 1, 0), 1);
+	Light* redLight = new Light(LIGHTTYPE_POINT ,vec3(0, 7, 0), quat(), vec3(1), vec3(1, 0, 0), 20);
+	Light* blueLight = new Light(LIGHTTYPE_POINT, vec3(0, 7, -4), quat(), vec3(1), vec3(0, 0, 1), 20);
+	Light* greenLight = new Light(LIGHTTYPE_POINT, vec3(0, 0, -2), quat(), vec3(1), vec3(0, 1, 0), 1);
+	Light* brightLight = new Light(LIGHTTYPE_POINT, vec3(0, 7, -2), quat(), vec3(1), vec3(1, 1, 1), 30);
+	// Light* sunLight = new Light(LIGHTTYPE_DIRECTIONAL, vec3(0, 0, 0), quat(), vec3(1), vec3(1, 1, 1), 1);
 
 	globalEventManager.mainLoop();
 }

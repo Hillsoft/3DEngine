@@ -1,6 +1,8 @@
 pids
 logs
 results
+Thumbs.db
+engine.ini
 
 Debug
 Release

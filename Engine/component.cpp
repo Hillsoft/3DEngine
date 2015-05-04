@@ -2,9 +2,14 @@
 
 #include "component.h"
 
-Component::Component(Actor* parent)
+namespace HillEngine
 {
-	this->parent = parent;
 
-	parent->components.push_back(this);
-}
+	Component::Component(Actor* parent)
+	{
+		this->parent = parent;
+
+		parent->components.push_back(this);
+	}
+
+} // namespace HillEngine

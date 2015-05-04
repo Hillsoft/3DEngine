@@ -1,14 +1,20 @@
 #ifndef __POST_PROCESS_H__
 #define __POST_PROCESS_H__
 
-// Initializes required post processing variables, FBOs, etc.
-void initPostProcess();
+namespace HillEngine
+{
 
-// Generates a glow map with only the bright parts of the image
-void genGlowMap(GLuint texOut, GLuint texIn, int texWidth, int texHeight);
-// Blurs the image
-void gaussianBlur(GLuint texOut, GLuint texIn, int texWidth, int texHeight);
-// Causes bright parts of the image to bloom
-void bloom(GLuint texOut, GLuint texIn, int texWidth, int texHeight);
+	// Initializes required post processing variables, FBOs, etc.
+	void initPostProcess();
+	void cleanupPostProcess();
+
+	// Generates a glow map with only the bright parts of the image
+	void genGlowMap(GLuint texOut, GLuint texIn);
+	// Blurs the image
+	void gaussianBlur(GLuint texOut, GLuint texIn);
+	// Causes bright parts of the image to bloom
+	void bloom(GLuint& texOut, GLuint texIn);
+
+} // namespace HillEngine
 
 #endif

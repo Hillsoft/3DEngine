@@ -4,212 +4,237 @@
 
 #include "loadUtilities.h"
 
-// Frame buffers
-GLuint fboA = 0;
-GLuint fboB = 0;
-GLuint depthRenderBuffer;
-
-GLuint quad_vertexArray;
-GLuint quad_vertexbuffer;
-
-// Simple screen covering quad
-static const GLfloat quad_vertexData[] = {
-	-1.0f, -1.0f, 0.0f,
-	1.0f, -1.0f, 0.0f,
-	-1.0f, 1.0f, 0.0f,
-	-1.0f, 1.0f, 0.0f,
-	1.0f, -1.0f, 0.0f,
-	1.0f, 1.0f, 0.0f
-};
-
-// Glow map variables
-GLuint glowMap;
-GLuint glowMapTex;
-
-// Gaussian blur variables
-GLuint gaussianHorizontal;
-GLuint gaussianHorizontalTex;
-GLuint gaussianHorizontalPixSize;
-GLuint gaussianVertical;
-GLuint gaussianVerticalTex;
-GLuint gaussianVerticalPixSize;
-
-void initPostProcess()
+namespace HillEngine
 {
-	// Generate frame buffers
-	glGenFramebuffers(1, &fboA);
-	glBindFramebuffer(GL_FRAMEBUFFER, fboA);
 
-	glGenFramebuffers(1, &fboB);
-	glBindFramebuffer(GL_FRAMEBUFFER, fboB);
+	// Frame buffers
+	GLuint fboA = 0;
+	GLuint fboB = 0;
+	GLuint depthRenderBuffer;
 
-	glGenRenderbuffers(1, &depthRenderBuffer);
-	glBindRenderbuffer(GL_RENDERBUFFER, depthRenderBuffer);
+	GLuint quad_vertexArray;
+	GLuint quad_vertexbuffer;
 
-	// Initialize quad array
-	glGenVertexArrays(1, &quad_vertexArray);
-	glBindVertexArray(quad_vertexArray);
+	// Simple screen covering quad
+	static const GLfloat quad_vertexData[] = {
+		-1.0f, -1.0f, 0.0f,
+		1.0f, -1.0f, 0.0f,
+		-1.0f, 1.0f, 0.0f,
+		-1.0f, 1.0f, 0.0f,
+		1.0f, -1.0f, 0.0f,
+		1.0f, 1.0f, 0.0f
+	};
 
-	glGenBuffers(1, &quad_vertexbuffer);
-	glBindBuffer(GL_ARRAY_BUFFER, quad_vertexbuffer);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(quad_vertexData), quad_vertexData, GL_STATIC_DRAW);
+	// Glow map variables
+	GLuint glowMap;
+	GLuint glowMapTex;
 
-	// Load shaders
-	glowMap = loadShaders("quadVertex.glsl", "glowmapFragment.glsl");
-	glowMapTex = glGetUniformLocation(glowMap, "image");
+	// Gaussian blur variables
+	GLuint gaussianHorizontal;
+	GLuint gaussianHorizontalTex;
+	GLuint gaussianHorizontalPixSize;
+	GLuint gaussianVertical;
+	GLuint gaussianVerticalTex;
+	GLuint gaussianVerticalPixSize;
 
-	gaussianHorizontal = loadShaders("quadVertex.glsl", "blurFragmentHorizontal.glsl");
-	gaussianHorizontalTex = glGetUniformLocation(gaussianHorizontal, "image");
-	gaussianHorizontalPixSize = glGetUniformLocation(gaussianHorizontal, "pixSize");
+	// Temporary textures
+	GLuint bloomTempTex;
+	GLuint blurTempTex;
+	GLuint outTex;
 
-	gaussianVertical = loadShaders("quadVertex.glsl", "blurFragmentVertical.glsl");
-	gaussianVerticalTex = glGetUniformLocation(gaussianVertical, "image");
-	gaussianVerticalPixSize = glGetUniformLocation(gaussianVertical, "pixSize");
-}
+	const int bloomWidth = 128;
+	const int bloomHeight = 128;
 
-void genGlowMap(GLuint texOut, GLuint texIn, int texWidth, int texHeight)
-{
-	// Generate frame buffers
-	glBindFramebuffer(GL_FRAMEBUFFER, fboA);
-	glBindRenderbuffer(GL_RENDERBUFFER, depthRenderBuffer);
-	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, texWidth, texHeight);
-	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, depthRenderBuffer);
+	void initPostProcess()
+	{
+		// Generate frame buffers
+		glGenFramebuffers(1, &fboA);
+		glBindFramebuffer(GL_FRAMEBUFFER, fboA);
 
-	glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, texOut, 0);
+		glGenFramebuffers(1, &fboB);
+		glBindFramebuffer(GL_FRAMEBUFFER, fboB);
 
-	GLenum drawBuffers[1] = { GL_COLOR_ATTACHMENT0 };
-	glDrawBuffers(1, drawBuffers);
+		glGenRenderbuffers(1, &depthRenderBuffer);
+		glBindRenderbuffer(GL_RENDERBUFFER, depthRenderBuffer);
 
-	glBindFramebuffer(GL_FRAMEBUFFER, fboA);
-	glViewport(0, 0, texWidth, texHeight);
+		// Initialize quad array
+		glGenVertexArrays(1, &quad_vertexArray);
+		glBindVertexArray(quad_vertexArray);
 
-	// Validate frame buffer
-	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
-		printf("Error creating frame buffer\n");
+		glGenBuffers(1, &quad_vertexbuffer);
+		glBindBuffer(GL_ARRAY_BUFFER, quad_vertexbuffer);
+		glBufferData(GL_ARRAY_BUFFER, sizeof(quad_vertexData), quad_vertexData, GL_STATIC_DRAW);
 
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	glViewport(0, 0, texWidth, texHeight);
+		// Initialize temporary textures
+		glGenTextures(1, &bloomTempTex);
+		glBindTexture(GL_TEXTURE_2D, bloomTempTex);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB32F, bloomWidth, bloomHeight, 0, GL_RGB, GL_FLOAT, 0);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
-	// Initialize glow map textures
-	glUseProgram(glowMap);
+		glGenTextures(1, &blurTempTex);
+		glBindTexture(GL_TEXTURE_2D, blurTempTex);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB32F, bloomWidth, bloomHeight, 0, GL_RGB, GL_FLOAT, 0);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
-	glActiveTexture(GL_TEXTURE_2D);
-	glBindTexture(GL_TEXTURE_2D, texIn);
-	glUniform1i(glowMapTex, 0);
+		glGenTextures(1, &outTex);
+		glBindTexture(GL_TEXTURE_2D, outTex);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB32F, bloomWidth, bloomHeight, 0, GL_RGB, GL_FLOAT, 0);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
-	glEnableVertexAttribArray(0);
-	glBindBuffer(GL_ARRAY_BUFFER, quad_vertexbuffer);
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, (void*)0);
+		// Load shaders
+		glowMap = loadShaders("quadVertex.glsl", "glowmapFragment.glsl");
+		glowMapTex = glGetUniformLocation(glowMap, "image");
 
-	glDrawArrays(GL_TRIANGLES, 0, sizeof(quad_vertexData));
+		gaussianHorizontal = loadShaders("quadVertex.glsl", "blurFragmentHorizontal.glsl");
+		gaussianHorizontalTex = glGetUniformLocation(gaussianHorizontal, "image");
+		gaussianHorizontalPixSize = glGetUniformLocation(gaussianHorizontal, "pixSize");
 
-	glDisableVertexAttribArray(0);
-}
+		gaussianVertical = loadShaders("quadVertex.glsl", "blurFragmentVertical.glsl");
+		gaussianVerticalTex = glGetUniformLocation(gaussianVertical, "image");
+		gaussianVerticalPixSize = glGetUniformLocation(gaussianVertical, "pixSize");
+	}
 
-void gaussianBlur(GLuint texOut, GLuint texIn, int texWidth, int texHeight)
-{
-	// Intialize temporary textures
-	GLuint tempTex;
-	glGenTextures(1, &tempTex);
-	glBindTexture(GL_TEXTURE_2D, tempTex);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB32F, texWidth, texHeight, 0, GL_RGB, GL_FLOAT, 0);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	void cleanupPostProcess()
+	{
+		glDeleteTextures(1, &bloomTempTex);
 
-	// Bind the frame buffer
-	glBindFramebuffer(GL_FRAMEBUFFER, fboA);
-	glBindRenderbuffer(GL_RENDERBUFFER, depthRenderBuffer);
-	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, texWidth, texHeight);
-	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, depthRenderBuffer);
+		glDeleteBuffers(1, &quad_vertexbuffer);
+	}
 
-	glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, tempTex, 0);
+	void genGlowMap(GLuint texOut, GLuint texIn)
+	{
+		// Generate frame buffers
+		glBindFramebuffer(GL_FRAMEBUFFER, fboA);
+		glBindRenderbuffer(GL_RENDERBUFFER, depthRenderBuffer);
+		glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, bloomWidth, bloomHeight);
+		glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, depthRenderBuffer);
 
-	GLenum drawBuffers[1] = { GL_COLOR_ATTACHMENT0 };
-	glDrawBuffers(1, drawBuffers);
+		glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, texOut, 0);
 
-	glBindFramebuffer(GL_FRAMEBUFFER, fboA);
-	glViewport(0, 0, texWidth, texHeight);
+		GLenum drawBuffers[1] = { GL_COLOR_ATTACHMENT0 };
+		glDrawBuffers(1, drawBuffers);
 
-	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
-		printf("Error creating frame buffer\n");
+		glBindFramebuffer(GL_FRAMEBUFFER, fboA);
+		glViewport(0, 0, bloomWidth, bloomHeight);
 
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	glViewport(0, 0, texWidth, texHeight);
+		// Validate frame buffer
+		if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+			printf("Error creating frame buffer\n");
 
-	// Do the horizontal blur
-	glUseProgram(gaussianHorizontal);
-	
-	glActiveTexture(GL_TEXTURE_2D);
-	glBindTexture(GL_TEXTURE_2D, texIn);
-	glUniform1i(gaussianHorizontalTex, 0);
-	glUniform1f(gaussianHorizontalPixSize, 1.0f / texHeight);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		glViewport(0, 0, bloomWidth, bloomHeight);
 
-	glEnableVertexAttribArray(0);
-	glBindBuffer(GL_ARRAY_BUFFER, quad_vertexbuffer);
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, (void*)0);
+		// Initialize glow map textures
+		glUseProgram(glowMap);
 
-	glDrawArrays(GL_TRIANGLES, 0, sizeof(quad_vertexData));
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, texIn);
+		glUniform1i(glowMapTex, 0);
 
-	glDisableVertexAttribArray(0);
+		glEnableVertexAttribArray(0);
+		glBindBuffer(GL_ARRAY_BUFFER, quad_vertexbuffer);
+		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, (void*)0);
+
+		glDrawArrays(GL_TRIANGLES, 0, sizeof(quad_vertexData));
+
+		glDisableVertexAttribArray(0);
+	}
+
+	void gaussianBlur(GLuint texOut, GLuint texIn)
+	{
+		// Bind the frame buffer
+		glBindFramebuffer(GL_FRAMEBUFFER, fboA);
+		glBindRenderbuffer(GL_RENDERBUFFER, depthRenderBuffer);
+		glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, bloomWidth, bloomHeight);
+		glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, depthRenderBuffer);
+
+		glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, blurTempTex, 0);
+
+		GLenum drawBuffers[1] = { GL_COLOR_ATTACHMENT0 };
+		glDrawBuffers(1, drawBuffers);
+
+		glBindFramebuffer(GL_FRAMEBUFFER, fboA);
+		glViewport(0, 0, bloomWidth, bloomHeight);
+
+		if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+			printf("Error creating frame buffer\n");
+
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		glViewport(0, 0, bloomWidth, bloomHeight);
+
+		// Do the horizontal blur
+		glUseProgram(gaussianHorizontal);
+
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, texIn);
+		glUniform1i(gaussianHorizontalTex, 0);
+		glUniform1f(gaussianHorizontalPixSize, 1.0f / bloomHeight);
+
+		glEnableVertexAttribArray(0);
+		glBindBuffer(GL_ARRAY_BUFFER, quad_vertexbuffer);
+		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, (void*)0);
+
+		glDrawArrays(GL_TRIANGLES, 0, sizeof(quad_vertexData));
+
+		glDisableVertexAttribArray(0);
 
 
-	// Switch the frame buffer
-	glBindFramebuffer(GL_FRAMEBUFFER, fboB);
-	glBindRenderbuffer(GL_RENDERBUFFER, depthRenderBuffer);
-	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, texWidth, texHeight);
-	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, depthRenderBuffer);
+		// TODO: work out why this creates artefacts
+		// Switch the frame buffer
+		glBindFramebuffer(GL_FRAMEBUFFER, fboB);
+		glBindRenderbuffer(GL_RENDERBUFFER, depthRenderBuffer);
+		glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, bloomWidth, bloomHeight);
+		glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, depthRenderBuffer);
 
-	glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, texOut, 0);
+		glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, texOut, 0);
 
-	glDrawBuffers(1, drawBuffers);
+		glDrawBuffers(1, drawBuffers);
 
-	glBindFramebuffer(GL_FRAMEBUFFER, fboB);
-	glViewport(0, 0, texWidth, texHeight);
+		glBindFramebuffer(GL_FRAMEBUFFER, fboB);
+		glViewport(0, 0, bloomWidth, bloomHeight);
 
-	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
-		printf("Error creating frame buffer\n");
+		if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+			printf("Error creating frame buffer\n");
 
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	glViewport(0, 0, texWidth, texHeight);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		glViewport(0, 0, bloomWidth, bloomHeight);
+		
+		// Do the vertical blur
+		glUseProgram(gaussianVertical);
 
-	// Do the vertical blur
-	glUseProgram(gaussianVertical);
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, blurTempTex);
+		glUniform1i(gaussianVerticalTex, 0);
+		glUniform1f(gaussianVerticalPixSize, 1.0f / bloomWidth);
 
-	glActiveTexture(GL_TEXTURE_2D);
-	glBindTexture(GL_TEXTURE_2D, tempTex);
-	glUniform1i(gaussianVerticalTex, 0);
-	glUniform1f(gaussianVerticalPixSize, 1.0f / texWidth);
+		glEnableVertexAttribArray(0);
+		glBindBuffer(GL_ARRAY_BUFFER, quad_vertexbuffer);
+		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, (void*)0);
 
-	glEnableVertexAttribArray(0);
-	glBindBuffer(GL_ARRAY_BUFFER, quad_vertexbuffer);
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, (void*)0);
+		glDrawArrays(GL_TRIANGLES, 0, sizeof(quad_vertexData));
 
-	glDrawArrays(GL_TRIANGLES, 0, sizeof(quad_vertexData));
+		glDisableVertexAttribArray(0);
+	}
 
-	glDisableVertexAttribArray(0);
+	void bloom(GLuint& texOut, GLuint texIn)
+	{
+		if (bloomEnabled)
+		{
+			// Combine the two required functions
+			// genGlowMap(bloomTempTex, texIn);
+			gaussianBlur(outTex, texIn);
+		}
 
-	// Clean up
-	glDeleteTextures(1, &tempTex);
-}
+		texOut = outTex;
+	}
 
-void bloom(GLuint texOut, GLuint texIn, int texWidth, int texHeight)
-{
-	// Generate temporary texture
-	GLuint tempTex;
-	glGenTextures(1, &tempTex);
-	glBindTexture(GL_TEXTURE_2D, tempTex);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB32F, texWidth, texHeight, 0, GL_RGB, GL_FLOAT, 0);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-
-	// Combine the two required functions
-	genGlowMap(tempTex, texIn, texWidth, texHeight);
-	gaussianBlur(texOut, tempTex, texWidth, texHeight);
-
-	// Clean up
-	glDeleteTextures(1, &tempTex);
-}
+} // namespace HillEngine

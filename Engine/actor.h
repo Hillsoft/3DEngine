@@ -5,24 +5,30 @@
 #include <vector>
 #include "gameObject.h"
 #include "globals.h"
-class Component;
 
-class Actor : public GameObject
+namespace HillEngine
 {
-public:
-	Actor();
-	Actor(vec3 location, quat rotation, vec3 scale);
 
-	virtual void tick(float deltaTime);
+	class Component;
 
-	// The actors position, should maybe be made private...
-	vec3 location;
-	quat rotation;
-	vec3 scale;
-	mat4 objectMatrix;
+	class Actor : public GameObject
+	{
+	public:
+		Actor();
+		Actor(vec3 location, quat rotation, vec3 scale);
 
-	// The actors components
-	std::vector<Component*> components;
-};
+		virtual void tick(float deltaTime);
+
+		// The actors position, should maybe be made private...
+		vec3 location;
+		quat rotation;
+		vec3 scale;
+		mat4 objectMatrix;
+
+		// The actors components
+		std::vector<Component*> components;
+	};
+
+} // namespace HillEngine
 
 #endif

@@ -52,7 +52,7 @@
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>glew32.lib;glfw3.lib;opengl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>glew32.lib;glfw3.lib;opengl32.lib;openal32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -68,7 +68,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalDependencies>glew32.lib;glfw3.lib;opengl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>glew32.lib;glfw3.lib;opengl32.lib;openal32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -84,6 +84,7 @@
     <ClCompile Include="performanceMonitor.cpp" />
     <ClCompile Include="postProcess.cpp" />
     <ClCompile Include="simpleCamera.cpp" />
+    <ClCompile Include="sound.cpp" />
     <ClCompile Include="text2D.cpp" />
     <ClCompile Include="vboindexer.cpp" />
   </ItemGroup>
@@ -100,13 +101,15 @@
     <ClInclude Include="performanceMonitor.h" />
     <ClInclude Include="postProcess.h" />
     <ClInclude Include="simpleCamera.h" />
+    <ClInclude Include="sound.h" />
     <ClInclude Include="text2D.h" />
     <ClInclude Include="vboindexer.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="blurFragmentHorizontal.glsl" />
     <None Include="blurFragmentVertical.glsl" />
-    <None Include="deferredFragment.glsl" />
+    <None Include="deferredFragmentDirectional.glsl" />
+    <None Include="deferredFragmentPoint.glsl" />
     <None Include="engine.ini" />
     <None Include="fragment.glsl" />
     <None Include="glowmapFragment.glsl" />

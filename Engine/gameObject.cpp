@@ -3,17 +3,22 @@
 #include "gameObject.h"
 #include "eventManager.h"
 
-GameObject::GameObject()
+namespace HillEngine
 {
-	globalEventManager.addTickListener(this);
-}
 
-GameObject::~GameObject()
-{
-	globalEventManager.removeTickListener(this);
-}
+	GameObject::GameObject()
+	{
+		globalEventManager.addTickListener(this);
+	}
 
-void GameObject::tick(float deltaTime)
-{
-	// do nothing
-}
+	GameObject::~GameObject()
+	{
+		globalEventManager.removeTickListener(this);
+	}
+
+	void GameObject::tick(float deltaTime)
+	{
+		// do nothing
+	}
+
+} // namespace HillEngine

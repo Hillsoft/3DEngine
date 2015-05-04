@@ -14,24 +14,30 @@ using namespace glm;
 #define M_PI 3.14159265
 #endif
 
-// Circular header includes are bad
-class EventManager;
+namespace HillEngine
+{
 
-// Graphics settings
-extern int windowWidth;
-extern int windowHeight;
-extern bool fullscreen;
-extern int msaaRes;
-// A link to the GL window object
-extern GLFWwindow* window;
+	// Circular header includes are bad
+	class EventManager;
 
-// Deltatime, still used by performanceMonitor, but otherwise deprecated
-extern double deltaTime;
+	// Graphics settings
+	extern int windowWidth;
+	extern int windowHeight;
+	extern bool fullscreen;
+	extern bool bloomEnabled;
+	extern int msaaRes;
+	// A link to the GL window object
+	extern GLFWwindow* window;
 
-// The global event manager, a very important object
-extern EventManager globalEventManager;
+	// Deltatime, still used by performanceMonitor, but otherwise deprecated
+	extern double deltaTime;
 
-// Loads game settings from engine.ini and keyBindings.ini
-void loadSettings();
+	// The global event manager, a very important object
+	extern EventManager globalEventManager;
+
+	// Loads game settings from engine.ini and keyBindings.ini
+	void loadSettings();
+
+} // namespace HillEngine
 
 #endif
